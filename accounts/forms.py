@@ -4,7 +4,8 @@ from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ValidationError
 
-from .utils import send_activation_notification
+# from .utils import send_activation_notification
+from .apps import user_registered
 
 
 class AccountRegistrationForm(forms.ModelForm):
@@ -46,7 +47,8 @@ class AccountRegistrationForm(forms.ModelForm):
         if commit:
             user.save()
 
-        send_activation_notification(user)
+        # send_activation_notification(user)
+        user_registered.send(AccountRegistrationForm, instance=user)
 
         return user
 

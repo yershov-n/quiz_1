@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, modelformset_factory
 from django.forms import ModelForm
 
-from quiz.models import Choice
+from quiz.models import Choice, Question
 
 
 class ChoicesInlineFormset(BaseInlineFormSet):
@@ -32,6 +32,23 @@ class QuestionInlineFormSet(BaseInlineFormSet):
             raise ValidationError(
                 f'Кол-во вопросов должно быть в диапазоне от {self.instance.QUESTION_MIN_LIMIT} до '
                 f'{self.instance.QUESTION_MAX_LIMIT} включительно'
+            )
+
+        order_num_lst = [question.cleaned_data['order_num'] for question in self.forms]
+
+        if min(order_num_lst) != 1:
+            raise ValidationError(
+                'Номера вопросов должны начинаться с первого'
+            )
+
+        if max(order_num_lst) > len(self.forms):
+            raise ValidationError(
+                'Номер вопроса не должен превышать кол-во вопросов в тесте'
+            )
+
+        if len(set(order_num_lst)) != len(self.forms):
+            raise ValidationError(
+                'Номера вопросов должны следовать один за другим и не должны повторяться'
             )
 
 

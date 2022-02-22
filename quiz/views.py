@@ -1,6 +1,8 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import reverse, render
-from django.views.generic import DetailView, CreateView, UpdateView
+from django.urls import reverse_lazy
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.views.generic import ListView
 from django.http import HttpResponseRedirect
 from django.views.generic.list import MultipleObjectMixin
@@ -99,9 +101,14 @@ class ExamResultQuestionView(LoginRequiredMixin, UpdateView):
         )
         choices = ChoicesFormSet(data=request.POST)
         selected_choices = ['is_selected' in form.changed_data for form in choices.forms]
-        result = Result.objects.get(uuid=res_uuid)
-        # result.update_result(order_num, question, selected_choices)
-        result.update_result(result.current_order_number + 1, question, selected_choices)
+        if True not in selected_choices:
+            messages.warning(request, 'You may mark at least one answer')
+        elif False not in selected_choices:
+            messages.warning(request, 'You can`t mark all answers')
+        else:
+            result = Result.objects.get(uuid=res_uuid)
+            # result.update_result(order_num, question, selected_choices)
+            result.update_result(result.current_order_number + 1, question, selected_choices)
 
         if result.state == Result.STATE.FINISHED:
             return HttpResponseRedirect(
@@ -159,3 +166,15 @@ class ExamResultUpdateView(LoginRequiredMixin, UpdateView):
                 }
             )
         )
+
+
+class ExamResultDeleteView(LoginRequiredMixin, DeleteView):
+    model = Result
+    template_name = 'results/delete.html'
+
+    def get_object(self, queryset=None):
+        uuid = self.kwargs.get('res_uuid')
+        return self.get_queryset().get(uuid=uuid)
+
+    def get_success_url(self):
+        return reverse_lazy('quizzes:details', kwargs={'uuid': self.kwargs.get('uuid')})

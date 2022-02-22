@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from core.models import BaseModel
 from core.utils import generate_uuid
 

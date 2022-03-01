@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load custom_tags %}
+
 {% block title %}
     Результат теста
 {% endblock %}
@@ -32,11 +34,17 @@
                         </tr>
                         <tr>
                             <td>Результат</td>
-                            <td>{{ result.num_correct_answers }} / {{ result.num_incorrect_answers }}</td>
+{#                            <td>{{ result.num_correct_answers }} / {{ result.num_incorrect_answers }}</td>#}
+                            {% expression '(%1 / (%2 + %3)) * 100' result.num_correct_answers result.num_correct_answers result.num_incorrect_answers as success_rate %}
+                            <td><div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ success_rate }}%"
+                                         aria-valuenow="{{ success_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div></td>
                         </tr>
                         <tr>
                             <td>Success rate</td>
-                            <td>{{ result.success_rate }}</td>
+{#                            <td>{{ result.success_rate }}</td>#}
+                            <td>{{ success_rate }}%</td>
                         </tr>
                         <tr>
                             <td>Время прохождения теста</td>

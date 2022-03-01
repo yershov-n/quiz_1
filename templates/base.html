@@ -16,6 +16,13 @@
         <div class="border rounded text-center p-3 m-3 mb-5 bg-light shadow">
             <h1>{% block header %}Welcome to Quiz!!!{% endblock %}</h1>
         </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
         {% block content %}{% endblock %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"

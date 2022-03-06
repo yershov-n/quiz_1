@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import reverse, render
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
@@ -144,7 +144,11 @@ class ExamResultDetailView(LoginRequiredMixin, DetailView):
         return self.get_queryset().get(uuid=uuid)
 
 
-class ExamResultUpdateView(LoginRequiredMixin, UpdateView):
+class ExamResultUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = [
+        'accounts.view_statistics',
+    ]
+
     def get(self, request, *args, **kwargs):
         uuid = kwargs.get('uuid')
         res_uuid = kwargs.get('res_uuid')

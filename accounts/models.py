@@ -1,5 +1,7 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class CustomUser(AbstractUser):
@@ -10,7 +12,9 @@ class CustomUser(AbstractUser):
     rating = models.PositiveSmallIntegerField(default=0)
 
     class Meta(AbstractUser.Meta):
-        pass
+        permissions = [
+            ('view_statistics', 'View extra data'),
+        ]
 
     def __str__(self):
         return self.username
@@ -24,3 +28,9 @@ class CustomUser(AbstractUser):
             self.rating = self.rating + point
 
         self.save()
+
+
+@receiver(post_save, sender=CustomUser)
+def save_user(sender, instance, created, **kwargs):
+    if created:
+        instance.groups.add(Group.objects.get(name='Users'))
